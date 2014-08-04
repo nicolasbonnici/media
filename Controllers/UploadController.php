@@ -2,10 +2,10 @@
 namespace bundles\media\Controllers;
 
 /**
- * Media Bundle HomeController
+ * Media Bundle UploadController
  * @author Nicolas Bonnici contact@nbonnici.info
  */
-class HomeController extends \Library\Core\Auth
+class UploadController extends \Library\Core\Auth
 {
 
     public function __preDispatch()
@@ -15,11 +15,11 @@ class HomeController extends \Library\Core\Auth
     {}
 
     /**
-     * A dashboard for User's media
+     * Handle POST upload request
      */
     public function indexAction()
     {
-        $this->oView->render($this->aView, 'home/index.tpl');
+        $this->oView->render($this->aView, 'upload/index.tpl');
     }
 }
 
