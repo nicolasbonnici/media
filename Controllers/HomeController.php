@@ -22,5 +22,3 @@ class HomeController extends \Library\Core\Auth
         $this->oView->render($this->aView, 'home/index.tpl');
     }
 }
-
-?>
