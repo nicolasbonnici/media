@@ -12,57 +12,12 @@ use Library\Core\Directories;
 class Media
 {
     /**
-     * Public path workspaces
-     *
+     * Public path workspaces (Directly linked to the Workspaces/public bundle directory)
+     * Example http://domain.tld/[***[some_dir]***]/path/to/some.file
      *
      * @var string
      */
-    protected $sPublicWorkspacesPath = 'workspaces/';
-
-    /**
-     * Alllowed file types
-     *
-     * @todo add all free document format
-     * @var array
-     */
-    protected $aHandledFileTypes = array(
-    	'image' => array(
-    	   '.jpg',
-    	   '.jpeg',
-    	   '.png',
-    	   '.gif',
-    	   '.svg'
-        ),
-        'video' => array(
-    	   '.flv',
-    	   '.avi',
-    	   '.mov',
-    	   '.mp4'
-        ),
-        'audio' => array(
-    	   '.ogg',
-    	   '.oga',
-    	   '.mp3',
-    	   '.wave'
-        ),
-        'document' => array(
-    	   '.pdf',
-    	   '.odt',
-    	   '.odf',
-    	   '.doc',
-    	   '.docx',
-    	   '.xls'
-        ),
-        'archive' => array(
-    	   '.tar',
-    	   '.tar.gz',
-    	   '.tgz',
-    	   '.zip',
-    	   '.7z',
-    	   '.rar',
-    	   '.7z'
-        )
-    );
+    protected $sPublicWorkspacesPath = 'u/';
 
     /**
      * Public file repository absolute local path
@@ -108,9 +63,11 @@ class Media
     public function __construct(\bundles\user\Entities\User $oUser)
     {
         try {
-            $this->checkWorkspace();
+            $this->sPublicWorkspacesPath    = PUBLIC_PATH . $this->sPublicWorkspacesPath;
+            $this->sPublicMediasPath        = BUNDLES_PATH . 'media/Workspaces/Public/';
+            $this->sPrivateMediasPath       = BUNDLES_PATH . 'media/Workspaces/Private/';
 
-            $this->isInitiatedUserWorkspace($oUser) {
+            if (! $this->checkWorkspaces()) {
                 $this->initUserWorkspace($oUser);
             }
 
@@ -138,6 +95,7 @@ class Media
 
     /**
      * Load the Medias found for the User provided at instance
+     *
      * @throw MediaModelException
      */
     public function loadUserMedia()
@@ -147,6 +105,7 @@ class Media
 
     /**
      * Accesssor for Media Entity
+     *
      * \Library\Core\EntitY
      */
     public function getMedia()
@@ -167,34 +126,36 @@ class Media
      * Init a user workspace
      *
      * @param \bundles\user\Entities\User $oUser
-     * @return boolean
+     * @return boolean|MediaModelException   TRUE otherwhise Exception
      */
     protected function initUserWorkspace(\bundles\user\Entities\User $oUser)
     {
-
+        $sUserDirectoryPath = $this->sPublicMediasPath . md5($oUser->mail);
+        if (! Directories::exists($sUserDirectoryPath) && ! Directories::create($sUserDirectoryPath)) {
+            throw new MediaModelException('Cannot have write eaccess under the current workspace (' . $this->sPublicMediasPath . '), check your rights.');
+        } else {
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Check if a given user is already initiated
+     * Check if the workspace is fully functionnal
      *
-     * @param \bundles\user\Entities\User $oUser
-     * @return boolean
+     * @throws MediaModelException if something very scary happened...
+     * @return boolean|MediaModelException   TRUE otherwhise Exception
      */
-    protected function isInitiatedUserWorkspace(\bundles\user\Entities\User $oUser)
-    {
-
-    }
-
     private function checkWorkspaces()
     {
         // Check if public folder for user's data is correct
-        if (! Directories::exists(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
+        if (! Directories::exists($this->sPublicWorkspacesPath)) {
             // Try to create
             if (! Directories::create(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
-                throw new MediaModelException('Error: Unable to create workspaces directories: ' . PUBLIC_PATH . $this->sWorkspacesPath);
+                throw new MediaModelException('Error: Unable to create workspaces directories: ' . $this->sWorkspacesPath);
+            } else {
+                return true;
             }
         }
-
     }
 }
 
