@@ -2,6 +2,7 @@
 namespace bundles\media\Models;
 
 use Library\Core\Directories;
+
 /**
  * Media managment
  * Medias can be from several types (extendable)
@@ -98,7 +99,7 @@ class Media
      *
      * @throw MediaModelException
      */
-    public function loadUserMedia()
+    public function loadUserMedia(\bundles\user\Entities\User $oUser)
     {
 
     }
@@ -130,7 +131,7 @@ class Media
      */
     protected function initUserWorkspace(\bundles\user\Entities\User $oUser)
     {
-        $sUserDirectoryPath = $this->sPublicMediasPath . md5($oUser->mail);
+        $sUserDirectoryPath = $this->buildUserPath($oUser);
         if (! Directories::exists($sUserDirectoryPath) && ! Directories::create($sUserDirectoryPath)) {
             throw new MediaModelException('Cannot have write eaccess under the current workspace (' . $this->sPublicMediasPath . '), check your rights.');
         } else {
@@ -156,6 +157,23 @@ class Media
                 return true;
             }
         }
+    }
+
+    /**
+     * Build user's directory name under the workspace
+     *
+     * @param \bundles\user\Entities\User $oUser
+     * @param boolean $bIsPublic   TRUE to build private worspace path
+     * @return string
+     */
+    private function buildUserPath(\bundles\user\Entities\User $oUser, $bIsPublic = false)
+    {
+        if (! $bIsPublic) {
+            $sPath = $this->sPublicMediasPath . md5($oUser->mail);
+            $sPath = $this->sPrivateMediasPath . md5($oUser->mail);
+        }
+
+        return $sPath;
     }
 }
 
