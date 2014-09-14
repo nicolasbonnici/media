@@ -1,6 +1,7 @@
 <?php
 namespace bundles\media\Models;
 
+use Library\Core\Directories;
 /**
  * Media managment
  * Medias can be from several types (extendable)
@@ -10,6 +11,14 @@ namespace bundles\media\Models;
 
 class Media
 {
+    /**
+     * Public path workspaces
+     *
+     *
+     * @var string
+     */
+    protected $sPublicWorkspacesPath = 'workspaces/';
+
     /**
      * Alllowed file types
      *
@@ -91,9 +100,24 @@ class Media
      */
     private $oMediaCollection;
 
-    public function __construct()
+    /**
+     * Instance constructor
+     *
+     * @return MediaModelException If something bad happen otherwhise strictly noting -.-
+     */
+    public function __construct(\bundles\user\Entities\User $oUser)
     {
-        // @todo create an Media and MediaType Entity
+        try {
+            $this->checkWorkspace();
+
+            $this->isInitiatedUserWorkspace($oUser) {
+                $this->initUserWorkspace($oUser);
+            }
+
+        } catch(\MediaModelException $oMediaModelException) {
+            return $oMediaModelException;
+        }
+
     }
 
     /**
@@ -109,7 +133,7 @@ class Media
      */
     public function download()
     {
-        // Simply send HTTP meta encode then redfile
+        // Simply send HTTP meta encode then redfile iso solocal cdn
     }
 
     /**
@@ -137,6 +161,40 @@ class Media
     public function getMediaCollection()
     {
         return $this->oMediaCollection;
+    }
+
+    /**
+     * Init a user workspace
+     *
+     * @param \bundles\user\Entities\User $oUser
+     * @return boolean
+     */
+    protected function initUserWorkspace(\bundles\user\Entities\User $oUser)
+    {
+
+    }
+
+    /**
+     * Check if a given user is already initiated
+     *
+     * @param \bundles\user\Entities\User $oUser
+     * @return boolean
+     */
+    protected function isInitiatedUserWorkspace(\bundles\user\Entities\User $oUser)
+    {
+
+    }
+
+    private function checkWorkspaces()
+    {
+        // Check if public folder for user's data is correct
+        if (! Directories::exists(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
+            // Try to create
+            if (! Directories::create(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
+                throw new MediaModelException('Error: Unable to create workspaces directories: ' . PUBLIC_PATH . $this->sWorkspacesPath);
+            }
+        }
+
     }
 }
 
