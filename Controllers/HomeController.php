@@ -1,7 +1,7 @@
 <?php
 namespace bundles\media\Controllers;
 
-use bundles\media\Models\Media;
+use bundles\media\Models\MediaModel;
 use bundles\media\Models\MediaModelException;
 
 /**
@@ -10,13 +10,17 @@ use bundles\media\Models\MediaModelException;
  */
 class HomeController extends \Library\Core\Auth
 {
+    protected $oMediaModel;
 
     public function __preDispatch()
     {
         // Build new model instance constructor with the current logged in user
-    	$oMediaModel = new Media($this->oUser);
+        // to setup user's workspace if needed
+    	$oMediaModel = new MediaModel($this->oUser);
     	if($oMediaModel instanceof MediaModelException) {
     	    return $oMediaModel->getMessage();
+    	} else {
+    	    $this->oMediaModel = $oMediaModel;
     	}
     }
 
@@ -29,5 +33,10 @@ class HomeController extends \Library\Core\Auth
     public function indexAction()
     {
         $this->oView->render($this->aView, 'home/index.tpl');
+    }
+
+    public function listAction()
+    {
+        return $this->oMediaModel->loadUserWorkspace();
     }
 }

@@ -50,7 +50,22 @@ meta_description %} {% block js %}
             </ul>
         </div>
         <div class="col-md-12 column">
-
+            <div class="filemanager">
+        
+                <div class="search">
+                    <input type="search" placeholder="Find a file.." />
+                </div>
+        
+                <div class="breadcrumbs"></div>
+        
+                <ul class="data"></ul>
+        
+                <div class="nothingfound">
+                    <div class="nofiles"></div>
+                    <span>No files here.</span>
+                </div>
+        
+            </div>
         </div>
     </div>
 </div>

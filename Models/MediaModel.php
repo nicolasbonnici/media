@@ -2,6 +2,7 @@
 namespace bundles\media\Models;
 
 use Library\Core\Directories;
+use Library\Core\Files;
 
 /**
  * Media managment
@@ -10,7 +11,7 @@ use Library\Core\Directories;
  *
  */
 
-class Media
+class MediaModel
 {
     /**
      * Public path workspaces (Directly linked to the Workspaces/public bundle directory)
@@ -39,6 +40,12 @@ class Media
     protected $sUploadedMediasPath;
 
     /**
+     * User's workspace
+     * @var string
+     */
+    protected $sUserWorkspacePath;
+
+    /**
      * Media Entity instance
      * @var \Library\Core\Entity
      */
@@ -64,7 +71,6 @@ class Media
     public function __construct(\bundles\user\Entities\User $oUser)
     {
         try {
-            $this->sPublicWorkspacesPath    = PUBLIC_PATH . $this->sPublicWorkspacesPath;
             $this->sPublicMediasPath        = BUNDLES_PATH . 'media/Workspaces/Public/';
             $this->sPrivateMediasPath       = BUNDLES_PATH . 'media/Workspaces/Private/';
 
@@ -95,16 +101,6 @@ class Media
     }
 
     /**
-     * Load the Medias found for the User provided at instance
-     *
-     * @throw MediaModelException
-     */
-    public function loadUserMedia(\bundles\user\Entities\User $oUser)
-    {
-
-    }
-
-    /**
      * Accesssor for Media Entity
      *
      * \Library\Core\EntitY
@@ -131,8 +127,8 @@ class Media
      */
     protected function initUserWorkspace(\bundles\user\Entities\User $oUser)
     {
-        $sUserDirectoryPath = $this->buildUserPath($oUser);
-        if (! Directories::exists($sUserDirectoryPath) && ! Directories::create($sUserDirectoryPath)) {
+        $this->sUserWorkspacePath = $this->buildUserPath($oUser);
+        if (! Directories::exists($this->sUserWorkspacePath) && ! Directories::create($this->sUserWorkspacePath)) {
             throw new MediaModelException('Cannot have write eaccess under the current workspace (' . $this->sPublicMediasPath . '), check your rights.');
         } else {
             return true;
@@ -169,12 +165,73 @@ class Media
     private function buildUserPath(\bundles\user\Entities\User $oUser, $bIsPublic = false)
     {
         if (! $bIsPublic) {
-            $sPath = $this->sPublicMediasPath . md5($oUser->mail);
+            $sPath = $this->sPublicWorkspacesPath . md5($oUser->mail);
+        } else {
             $sPath = $this->sPrivateMediasPath . md5($oUser->mail);
         }
 
         return $sPath;
     }
+
+    /**
+     * Load user's workspace files
+     *
+     * @return string
+     */
+    public function loadUserWorkspace()
+    {
+        $sResponse = $this->scanUserWorkspace(PUBLIC_PATH . $this->sUserWorkspacePath);
+        header('Content-type: application/json');
+        echo json_encode(array(
+            "name" => "files",
+            "type" => "folder",
+            "path" => '/' . $this->sUserWorkspacePath,
+            "items" => $sResponse
+        ));
+    }
+
+    /**
+     *
+     * @return array
+     */
+    private function scanUserWorkspace($sPathToScan = null, array $aItems = array())
+    {
+        if (is_null($sPathToScan)) {
+            $sPathToScan = $sPathToScan;
+        }
+        if(file_exists($sPathToScan)) {
+            foreach(scandir($sPathToScan) as $f) {
+
+                if(!$f || $f[0] == '.') {
+                    continue;
+                }
+
+                if(is_dir($sPathToScan . '/' . $f)) {
+                    // Folder
+                    $aItems[] = array(
+                        "name" => $f,
+                        "type" => "folder",
+                        "path" => $this->sUserWorkspacePath . '/' . $f,
+                        "items" => $this->scanUserWorkspace($sPathToScan . '/' . $f)
+                    );
+                }
+
+                else {
+                    // File
+                    $aItems[] = array(
+                        "name" => $f,
+                        "type" => "file",
+                        "path" => $this->sUserWorkspacePath. '/' . $f,
+                        "size" => filesize($sPathToScan . '/' . $f)
+                    );
+                }
+            }
+
+        }
+
+        return $aItems;
+    }
+
 }
 
 class MediaModelException extends \Exception
