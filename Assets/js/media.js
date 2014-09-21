@@ -4,6 +4,11 @@ $(function(){
         breadcrumbs = $('.breadcrumbs'),
         fileList = filemanager.find('.data');
 
+    if ($.fn.upload) {
+        var uploader = $.fn.upload();
+        uploader.init();
+    }
+    
     // Start by fetching the file data from scan.php with an AJAX request
 
     $.get('/media/home/list', function(data) {
@@ -14,21 +19,17 @@ $(function(){
         var folders = [],
             files = [];
 
-        // This event listener monitors changes on the URL. We use it to
         // capture back/forward navigation in the browser.
 
         $(window).on('hashchange', function(){
 
             goto(window.location.hash);
 
-            // We are triggering the event. This will execute 
-            // this function on page load, so that we show the correct folder:
-
+            // Fire directly
         }).trigger('hashchange');
 
 
         // Hiding and showing the search box
-
         filemanager.find('.search').click(function(){
 
             var search = $(this);
@@ -41,8 +42,6 @@ $(function(){
 
         // Listening for keyboard input on the search field.
         // We are using the "input" event which detects cut and paste
-        // in addition to keyboard input.
-
         filemanager.find('input').on('input', function(e){
 
             folders = [];
@@ -210,7 +209,6 @@ $(function(){
 
         var path = dir.split('/'),
         flag = 0;
-    console.log(response[0].items);
         for(var i = 0; i < path.length; i++){
                 for (item in response[0].items) {
                 if (response[0].items[item].name === path[i]) {
@@ -375,14 +373,12 @@ $(function(){
 
 
         // This function escapes special html characters in names
-
         function escapeHTML(text) {
             return text.replace(/\&/g,'&amp;').replace(/\</g,'&lt;').replace(/\>/g,'&gt;');
         }
 
 
         // Convert file sizes from bytes to human readable units
-
         function bytesToSize(bytes) {
             var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             if (bytes == 0) return '0 Bytes';
@@ -391,4 +387,5 @@ $(function(){
         }
 
     });
+    
 });
