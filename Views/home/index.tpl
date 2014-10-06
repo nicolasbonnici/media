@@ -58,7 +58,7 @@
                     </ul>
                 </li>
 
-                <li class="dropdown">
+                <li class="dropdown pull-right">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"> 
                         <span class="glyphicon glyphicon-cog"></span> <strong>{{tr['bundle_settings']}} </strong> <span class="caret"></span>
                     </a>
@@ -94,7 +94,7 @@
             <div class="filemanager">
         
                 <div class="search">
-                    <input type="search" placeholder="Find a file.." />
+                    <input type="search" placeholder="{{tr['search_files']}}" />
                 </div>
         
                 <div class="breadcrumbs"></div>
