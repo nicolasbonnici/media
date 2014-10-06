@@ -1,7 +1,7 @@
 <?php
 namespace bundles\media\Models;
 
-use Library\Core\Directory;
+use Library\Core\Directories;
 use Library\Core\Files;
 
 /**
@@ -128,7 +128,7 @@ class MediaModel
     protected function initUserWorkspace(\bundles\user\Entities\User $oUser)
     {
         $this->sUserWorkspacePath = $this->buildUserPath($oUser);
-        if (! Directory::exists($this->sUserWorkspacePath) && ! Directory::create($this->sUserWorkspacePath)) {
+        if (! Directories::exists($this->sUserWorkspacePath) && ! Directories::create($this->sUserWorkspacePath)) {
             throw new MediaModelException('Cannot have write eaccess under the current workspace (' . $this->sPublicMediasPath . '), check your rights.');
         } else {
             return true;
@@ -145,9 +145,9 @@ class MediaModel
     private function checkWorkspaces()
     {
         // Check if public folder for user's data is correct
-        if (! Directory::exists($this->sPublicWorkspacesPath)) {
+        if (! Directories::exists($this->sPublicWorkspacesPath)) {
             // Try to create
-            if (! Directory::create(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
+            if (! Directories::create(PUBLIC_PATH . $this->sPublicWorkspacesPath)) {
                 throw new MediaModelException('Error: Unable to create workspaces directories: ' . $this->sWorkspacesPath);
             } else {
                 return true;
